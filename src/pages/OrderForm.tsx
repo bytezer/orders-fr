@@ -20,8 +20,8 @@ const availableProducts: Product[] = [
 ];
 
 export const OrderForm = () => {
-  const { id } = useParams();
-  const isEdit = Boolean(id);
+  const { id } = useParams<{ id: string }>();
+  const isEdit = id !== "new";
   const navigate = useNavigate();
 
   const [orderNumber, setOrderNumber] = useState("");

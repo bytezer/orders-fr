@@ -42,7 +42,7 @@ export const MyOrders = () => {
     <div className="container mt-5">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>My Orders</h2>
-        <Button onClick={() => navigate("/add-order")}>Add Order</Button>
+        <Button onClick={() => navigate("/add-order/new")}>Add Order</Button>
       </div>
 
       <Table striped bordered hover>
