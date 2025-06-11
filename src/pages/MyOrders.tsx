@@ -1,43 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Table, Modal } from "react-bootstrap";
-
-interface Order {
-  id: number;
-  orderNumber: string;
-  date: string;
-  products: number;
-  finalPrice: number;
-}
-
-const mockOrders: Order[] = [
-  {
-    id: 1,
-    orderNumber: "ORD001",
-    date: "2025-06-11",
-    products: 3,
-    finalPrice: 150.0,
-  },
-  {
-    id: 2,
-    orderNumber: "ORD002",
-    date: "2025-06-10",
-    products: 2,
-    finalPrice: 80.0,
-  },
-];
+import { useOrders } from "../hooks/useOrders";
 
 export const MyOrders = () => {
-  const [orders, setOrders] = useState(mockOrders);
+  // Fetching orders from service
+  const { data: orders } = useOrders();
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const navigate = useNavigate();
 
+  /*
   const handleDelete = () => {
     setOrders((prev) => prev.filter((order) => order.id !== selectedId));
     setShowModal(false);
   };
-
+  */
   return (
     <div className="container mt-5">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -57,19 +35,19 @@ export const MyOrders = () => {
           </tr>
         </thead>
         <tbody>
-          {orders.map((order) => (
+          {orders?.map((order) => (
             <tr key={order.id}>
               <td>{order.id}</td>
               <td>{order.orderNumber}</td>
               <td>{order.date}</td>
               <td>{order.products}</td>
-              <td>${order.finalPrice.toFixed(2)}</td>
+              <td>$ {order.finalPrice.toFixed(2)}</td>
               <td>
                 <Button
                   variant="outline-primary"
                   size="sm"
                   className="me-2"
-                  onClick={() => navigate(`/edit-order/${order.id}`)}
+                  onClick={() => navigate(`/add-order/${order.id}`)}
                 >
                   Edit
                 </Button>
@@ -98,7 +76,7 @@ export const MyOrders = () => {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button variant="danger" onClick={() => {}}>
             Delete
           </Button>
         </Modal.Footer>
