@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Form, Table, Modal } from "react-bootstrap";
+import { useCreateOrder } from "../hooks/useCreateOrder";
 
 interface Product {
   id: number;
@@ -14,9 +15,9 @@ interface OrderProduct {
 }
 
 const availableProducts: Product[] = [
-  { id: 1, name: "Milk", unitPrice: 10 },
-  { id: 2, name: "Bread", unitPrice: 5 },
-  { id: 3, name: "Cheese", unitPrice: 15 },
+  { id: 1, name: "Milk", unitPrice: 10.0 },
+  { id: 2, name: "Bread", unitPrice: 5.0 },
+  { id: 3, name: "Cheese", unitPrice: 15.0 },
 ];
 
 export const OrderForm = () => {
@@ -84,6 +85,33 @@ export const OrderForm = () => {
     (sum, p) => sum + p.product.unitPrice * p.qty,
     0
   );
+
+  // Create order
+  const { mutate: createOrder, isPending } = useCreateOrder();
+
+  const handleCreateOrder = () => {
+    createOrder(
+      {
+        orderNumber,
+        status: "PENDING",
+        products: products.map((p) => ({
+          productId: p.product.id,
+          qty: p.qty,
+          unitPrice: p.product.unitPrice,
+        })),
+      },
+      {
+        onSuccess: () => {
+          alert("Order created successfully!");
+          navigate("/my-orders");
+        },
+        onError: (err: any) => {
+          console.error("Create order failed:", err);
+          alert("Something went wrong while creating the order.");
+        },
+      }
+    );
+  };
 
   return (
     <div className="container mt-5">
@@ -164,12 +192,10 @@ export const OrderForm = () => {
 
         <Button
           variant="success"
-          onClick={() => {
-            alert("Order saved!"); // replace with API call later
-            navigate("/my-orders");
-          }}
+          onClick={handleCreateOrder}
+          disabled={isPending}
         >
-          Save Order
+          {isPending ? "Creating..." : "Create Order"}
         </Button>
       </Form>
 
