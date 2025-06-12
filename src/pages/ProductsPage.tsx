@@ -78,7 +78,9 @@ export const ProductManagement = () => {
         <Button onClick={() => setShowModal(true)}>Add Product</Button>
       </div>
       <p className="fst-italic">These products are loaded from database</p>
-
+      <p className="fst-italic fw-bold">
+        Don't delete the 3 first products, orders could be fail
+      </p>
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -107,6 +109,7 @@ export const ProductManagement = () => {
                   variant="outline-danger"
                   size="sm"
                   onClick={() => handleDelete(p.id)}
+                  disabled={p.id <= 3} // Disable delete for first 3 products
                 >
                   Delete
                 </Button>
