@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Table, Modal } from "react-bootstrap";
 import { useOrders } from "../hooks/useOrders";
+import { useDeleteOrder } from "../hooks/useDeleteOrder";
 
 export const MyOrders = () => {
   // Fetching orders from service
@@ -10,12 +11,24 @@ export const MyOrders = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  /*
+  // Using the delete order hook
+  const { mutate: deleteOrder, isPending } = useDeleteOrder();
+
   const handleDelete = () => {
-    setOrders((prev) => prev.filter((order) => order.id !== selectedId));
-    setShowModal(false);
+    if (selectedId !== null) {
+      deleteOrder(selectedId, {
+        onSuccess: () => {
+          setShowModal(false);
+          setSelectedId(null);
+        },
+        onError: (err) => {
+          console.error("Error deleting order:", err);
+          alert("Error deleting order");
+        },
+      });
+    }
   };
-  */
+
   return (
     <div className="container mt-5">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -73,11 +86,15 @@ export const MyOrders = () => {
         </Modal.Header>
         <Modal.Body>Are you sure you want to delete this order?</Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowModal(false)}
+            disabled={isPending}
+          >
             Cancel
           </Button>
-          <Button variant="danger" onClick={() => {}}>
-            Delete
+          <Button variant="danger" onClick={handleDelete} disabled={isPending}>
+            {isPending ? "Deleting..." : "Delete"}
           </Button>
         </Modal.Footer>
       </Modal>
