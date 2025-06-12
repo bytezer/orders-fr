@@ -6,6 +6,7 @@ export interface Order {
   orderNumber: string;
   date: string;
   products: number;
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
   finalPrice: number;
 }
 
@@ -16,6 +17,7 @@ const fetchOrders = async (): Promise<Order[]> => {
     orderNumber: order.orderNumber,
     date: new Date(order.date).toISOString().split("T")[0],
     products: order.products.length,
+    status: order.status,
     finalPrice: order.products.reduce(
       (total: number, p: any) => total + p.unitPrice * p.qty,
       0
