@@ -7,7 +7,7 @@ import { useUpdateOrderStatus } from "../hooks/useUpdateOrderStatus";
 
 export const MyOrders = () => {
   // Fetching orders from service
-  const { data: orders } = useOrders();
+  const { data: orders, isLoading } = useOrders();
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export const MyOrders = () => {
   const { mutate: updateStatus, isPending: isUpdatingStatus } =
     useUpdateOrderStatus();
 
-  if (!orders) {
+  if (isLoading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center fw-bold fs-1"
@@ -45,7 +45,7 @@ export const MyOrders = () => {
       </div>
     );
   }
-  if (orders.length === 0) {
+  if (orders?.length === 0) {
     return <div className="conta ">No orders found.</div>;
   }
   return (

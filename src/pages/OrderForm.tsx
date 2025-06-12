@@ -23,6 +23,9 @@ const availableProducts: Product[] = [
 ];
 
 export const OrderForm = () => {
+  // Form state
+  const [formError, setFormError] = useState<string | null>(null);
+
   const { id } = useParams<{ id: string }>();
   const isEdit = id !== "new";
   const navigate = useNavigate();
@@ -63,6 +66,17 @@ export const OrderForm = () => {
   const { mutate: updateOrder, isPending: isUpdating } = useUpdateOrder();
 
   const handleUpdateOrder = () => {
+    if (!orderNumber.trim()) {
+      setFormError("Order number is required.");
+      return;
+    }
+    if (products.length === 0) {
+      setFormError("You must add at least one product.");
+      return;
+    }
+
+    setFormError(null);
+
     if (!id) return;
 
     updateOrder(
@@ -132,6 +146,17 @@ export const OrderForm = () => {
   const { mutate: createOrder, isPending } = useCreateOrder();
 
   const handleCreateOrder = () => {
+    if (!orderNumber.trim()) {
+      setFormError("Order number is required.");
+      return;
+    }
+    if (products.length === 0) {
+      setFormError("You must add at least one product.");
+      return;
+    }
+
+    setFormError(null);
+
     createOrder(
       {
         orderNumber,
@@ -165,6 +190,15 @@ export const OrderForm = () => {
         <h2>{isEdit ? "Edit Order" : "Add Order"}</h2>
         <Link to="/my-orders">Back to orders</Link>
       </div>
+      <p className="fst-italic">
+        You need to fill the Order # and add at least one product to create or
+        update an order.
+      </p>
+      {formError && (
+        <div className="alert alert-danger" role="alert">
+          {formError}
+        </div>
+      )}
       <Form className="mt-4">
         <Form.Group className="mb-3">
           <Form.Label>Order #</Form.Label>
@@ -242,7 +276,12 @@ export const OrderForm = () => {
         <Button
           variant="success"
           onClick={isEdit ? handleUpdateOrder : handleCreateOrder}
-          disabled={isPending || isUpdating}
+          disabled={
+            isPending ||
+            isUpdating ||
+            !orderNumber.trim() ||
+            products.length === 0
+          }
         >
           {isEdit
             ? isUpdating
