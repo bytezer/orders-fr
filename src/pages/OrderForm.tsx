@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Form, Table, Modal } from "react-bootstrap";
 import { useCreateOrder } from "../hooks/useCreateOrder";
+import { useOrder } from "../hooks/useOrder";
 
 interface Product {
   id: number;
@@ -36,16 +37,26 @@ export const OrderForm = () => {
     null
   );
 
+  // Fetch existing order data if editing
+  const { data: orderData, isLoading: isLoadingOrder } = useOrder(id);
+
   useEffect(() => {
-    if (isEdit) {
-      // Mock fetching order data
-      setOrderNumber("ORD002");
-      setProducts([
-        { product: availableProducts[0], qty: 2 },
-        { product: availableProducts[1], qty: 1 },
-      ]);
+    if (orderData) {
+      setOrderNumber(orderData?.orderNumber || "");
+      const mappedProducts = orderData.products.map((op) => {
+        const product = availableProducts.find((p) => p.id === op.productId);
+        return {
+          product: product ?? {
+            id: op.productId,
+            name: "Unknown",
+            unitPrice: op.unitPrice,
+          },
+          qty: op.qty,
+        };
+      });
+      setProducts(mappedProducts);
     }
-  }, [id]);
+  }, [orderData]);
 
   const handleSaveProduct = () => {
     const product = availableProducts.find((p) => p.id === selectedProductId);
@@ -112,6 +123,10 @@ export const OrderForm = () => {
       }
     );
   };
+
+  if (isEdit && isLoadingOrder) {
+    return <div className="container mt-5">Loading order...</div>;
+  }
 
   return (
     <div className="container mt-5">
