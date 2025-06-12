@@ -1,8 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button, Form, Table, Modal } from "react-bootstrap";
 import { useCreateOrder } from "../hooks/useCreateOrder";
 import { useOrder } from "../hooks/useOrder";
+import { useUpdateOrder } from "../hooks/useUpdateOrder";
 
 interface Product {
   id: number;
@@ -57,6 +58,36 @@ export const OrderForm = () => {
       setProducts(mappedProducts);
     }
   }, [orderData]);
+
+  // Edit hook
+  const { mutate: updateOrder, isPending: isUpdating } = useUpdateOrder();
+
+  const handleUpdateOrder = () => {
+    if (!id) return;
+
+    updateOrder(
+      {
+        id: parseInt(id),
+        orderNumber,
+        status: "PENDING", // Or use real status if editable
+        products: products.map((p) => ({
+          productId: p.product.id,
+          qty: p.qty,
+          unitPrice: p.product.unitPrice,
+        })),
+      },
+      {
+        onSuccess: () => {
+          alert("Order updated successfully!");
+          navigate("/my-orders");
+        },
+        onError: (err) => {
+          console.error("Update order failed:", err);
+          alert("Something went wrong while updating the order.");
+        },
+      }
+    );
+  };
 
   const handleSaveProduct = () => {
     const product = availableProducts.find((p) => p.id === selectedProductId);
@@ -130,7 +161,10 @@ export const OrderForm = () => {
 
   return (
     <div className="container mt-5">
-      <h2>{isEdit ? "Edit Order" : "Add Order"}</h2>
+      <div className="d-flex justify-content-between align-items">
+        <h2>{isEdit ? "Edit Order" : "Add Order"}</h2>
+        <Link to="/my-orders">Back to orders</Link>
+      </div>
       <Form className="mt-4">
         <Form.Group className="mb-3">
           <Form.Label>Order #</Form.Label>
@@ -207,10 +241,16 @@ export const OrderForm = () => {
 
         <Button
           variant="success"
-          onClick={handleCreateOrder}
-          disabled={isPending}
+          onClick={isEdit ? handleUpdateOrder : handleCreateOrder}
+          disabled={isPending || isUpdating}
         >
-          {isPending ? "Creating..." : "Create Order"}
+          {isEdit
+            ? isUpdating
+              ? "Updating..."
+              : "Update Order"
+            : isPending
+            ? "Creating..."
+            : "Create Order"}
         </Button>
       </Form>
 
